@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import "./App.css";
-import io from 'socket.io-client'
+import io from 'socket.io-client';
 const socket = io("http://localhost:5173/");
 const App = () => {
   const [joined,setjoined]=useState(false);
