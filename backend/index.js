@@ -33,13 +33,15 @@ io.on("connection",(socket)=>{
     if(!rooms.has(roomid)){
       rooms.set(roomid,new Set());
     }
-    rooms.get(roomid).add(username)
+    rooms.get(roomid).add(username);
+
     io.to(roomid).emit("userjoined",Array.from(rooms.get(currentRoom)));
 
-
+    console.log("user joined room", roomid);
+    
   });
 });
-const port = process.env.PORT || 5173;
+const port = process.env.PORT || 3000;
 
 server.listen(port,()=>{
   console.log('server is working');
