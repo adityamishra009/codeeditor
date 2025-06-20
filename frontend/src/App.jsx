@@ -13,7 +13,7 @@ const App = () => {
   const[UserName,setUserName]=useState("");
 
   const joinRoom = () => {
-    console.log(RoomId, UserName);
+    // console.log(RoomId, UserName);
     if(RoomId && UserName){
       socket.emit("join", { RoomId, UserName});
       setjoined(true)
