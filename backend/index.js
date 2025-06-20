@@ -37,7 +37,8 @@ io.on("connection",(socket)=>{
 
     io.to(roomid).emit("userjoined",Array.from(rooms.get(currentRoom)));
 
-    console.log("user joined room", roomid);
+    console.log("user joined room", roomid); // here it showed undifined in console
+    // need to solve this 
     
   });
 });
