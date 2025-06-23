@@ -69,7 +69,7 @@ return<div className="editor-container">
     </div>
     <h3>Users in room</h3>
     <ul>
-      <li>aditya</li>
+      <li>Ankit</li>
       <li>adityaaa</li>
     </ul>
     <p className='typing-indicator'>user typing...</p>
