@@ -3,7 +3,7 @@ import "./App.css";
 import io from 'socket.io-client';
 import Editor from '@monaco-editor/react';
 
-
+// it is backend api 
 const socket = io("http://localhost:3000/");
 
 const App = () => {
