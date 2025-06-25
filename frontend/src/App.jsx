@@ -1,40 +1,74 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import "./App.css";
 import io from 'socket.io-client';
 import Editor from '@monaco-editor/react';
 
 
-const socket = io("http://localhost:5173/");
+const socket = io("http://localhost:3000/");
+
 const App = () => {
 
-  const [joined,setjoined]=useState(false);
-  const[RoomId,setRoomId]=useState("");
+  const[joined,setJoined]=useState(false);
+  const[roomId,setRoomId]=useState("");
   const[UserName,setUserName]=useState("");
-  const[language,setlanguage]=useState("javascript");
-  const[code,setcode]=useState("");
-  const[copySuccess,setcopySuccess]=useState("");
+  const[language,setLanguage]=useState("javascript");
+  const[code,setCode]=useState("");
+  const[copySuccess,setCopysuccess]=useState("");
+  const[users, setUsers] = useState([]);
+
+
+  useEffect(() => {
+    socket.on("userJoined", (users) => {
+      setUsers(users)
+    });
+
+     socket.on("codeUpdate", (newCode) => {
+      setCode(newCode);
+    });
+
+    return () => {
+      socket.off("userJoined");
+      socket.off("codeUpdate");
+    }
+  },[]);
+
+   useEffect(() => {
+    const handleBeforeUnload = () => {
+      socket.emit("leaveRoom");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
 
 
   const joinRoom = () => {
-    // console.log(RoomId, UserName);
-    if(RoomId && UserName){
-      socket.emit("join", { RoomId, UserName});
-      setjoined(true)
+    // console.log(roomId, UserName);
+    if(roomId && UserName){
+      socket.emit("join", { roomId, UserName});
+      setJoined(true)
     }
   }
 
-  const copyRoomId = ()=> {
-    navigator.clipboard.writeText(RoomId)
-    setcopySuccess("copied")
+  const copyroomId = ()=> {
+    navigator.clipboard.writeText(roomId)
+    setCopysuccess("copied")
     setTimeout((""),2000);
 
 
   };
 
-  const handlecodechange=(newcode)=>{
-    setcode(newcode);
-
+  const handleCodeChange=(newcode)=>{
+    setCode(newcode);
+    socket.emit("codeChange", { roomId, code: newcode})
   }
+
+  console.log('Users:', users);
+
 
   
   if(!joined){
@@ -45,7 +79,7 @@ const App = () => {
           <input 
             type="text" 
             placeholder="Room Id"
-            value={RoomId}
+            value={roomId}
             onChange={(e)=>setRoomId(e.target.value)}
           />
           <input 
@@ -60,20 +94,22 @@ const App = () => {
     );
   }
 
-return<div className="editor-container">
+return (
+<div className="editor-container">
   <div className="sidebar">
     <div className="room-info">
-      <h2>code Room:{RoomId}</h2>
-      <button onClick={copyRoomId} className="copy-button">copy Roomid</button>
+      <h2>Code Room:{roomId}</h2>
+      <button onClick={copyroomId} className="copy-button">Copy Id</button>
       {copySuccess && <span className='copy-success'>{copySuccess}</span>}
     </div>
-    <h3>Users in room</h3>
+    <h3>Users in Room:</h3>
     <ul>
-      <li>Ankit</li>
-      <li>adityaaa</li>
-    </ul>
+          {users.map((user, index) => (
+            <li key={index}>{(user || '').slice(0, 8)}...</li>
+          ))}
+        </ul>
     <p className='typing-indicator'>user typing...</p>
-    <select className='language-selector' value={language} onChange={(e)=>setlanguage(e.target.value)}>
+    <select className='language-selector' value={language} onChange={(e)=>setLanguage(e.target.value)}>
       <option value="javascript">javascript</option>
       <option value="python">python</option>
       <option value="java">java</option>
@@ -82,11 +118,12 @@ return<div className="editor-container">
     <button className='leave-button'>Leave Room</button>
   </div>
   <div className='editor-wrapper'>
-    <Editor  height={"100%"}
+    <Editor  
+     height={"100%"}
      defaultLanguage={language} 
      language={language}
      value={code}
-     onChange={handlecodechange}
+     onChange={handleCodeChange}
      theme='vs-dark'
      options={
       {
@@ -96,10 +133,8 @@ return<div className="editor-container">
      }
     />
   </div>
-
-
 </div>
-
+);
 };
 
 export default App;
