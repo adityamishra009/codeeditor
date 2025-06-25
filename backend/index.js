@@ -28,7 +28,7 @@ io.on("connection", (socket) => {
       return;
     }
 
-    // Leave previous room if needed
+    // Leave previous room if need
     if (currentRoom) {
       socket.leave(currentRoom);
       if (rooms.has(currentRoom)) {
