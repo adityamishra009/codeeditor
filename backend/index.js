@@ -71,6 +71,10 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("typing",({roomId,UserName})=>{
+    socket.to(roomId).emit("userTyping",UserName)
+  })
+
   socket.on("disconnect", () => {
     if (currentRoom && currentUser) {
       if (rooms.has(currentRoom)) {
