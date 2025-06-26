@@ -16,6 +16,7 @@ const App = () => {
   const[code,setCode]=useState("");
   const[copySuccess,setCopysuccess]=useState("");
   const[users, setUsers] = useState([]);
+  const[typing,settyping]=useState("");
 
 
   useEffect(() => {
@@ -27,9 +28,16 @@ const App = () => {
       setCode(newCode);
     });
 
+    socket.on("userTyping",(user)=>{
+      settyping(`${user.slice(0,8)}..isTyping`)
+      setTimeout(() =>settyping(""),2000); 
+
+    });
+
     return () => {
       socket.off("userJoined");
       socket.off("codeUpdate");
+      socket.off("userTyping");
     }
   },[]);
 
@@ -66,6 +74,7 @@ const App = () => {
   const handleCodeChange=(newcode)=>{
     setCode(newcode);
     socket.emit("codeChange", { roomId, code: newcode})
+    socket.emit("typing",{roomId,UserName})
   }
 
   console.log('Users:', users);
@@ -109,7 +118,7 @@ return (
             <li key={index}>{(user || '').slice(0, 8)}...</li>
           ))}
         </ul>
-    <p className='typing-indicator'>user typing...</p>
+    <p className='typing-indicator'>{typing}</p>
     <select className='language-selector' value={language} onChange={(e)=>setLanguage(e.target.value)}>
       <option value="javascript">javascript</option>
       <option value="python">python</option>
