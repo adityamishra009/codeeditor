@@ -3,6 +3,7 @@ import "./App.css";
 import io from 'socket.io-client';
 import Editor from '@monaco-editor/react';
 
+
 // it is backend api 
 // add your backend api here 
 const socket = io("http://localhost:3000/");
@@ -33,11 +34,15 @@ const App = () => {
       setTimeout(() =>settyping(""),2000); 
 
     });
+    socket.on("languageupdate",(newlanguage)=>{
+      setLanguage(newlanguage);
+    });
 
     return () => {
       socket.off("userJoined");
       socket.off("codeUpdate");
       socket.off("userTyping");
+      socket.off("languageupdate");
     }
   },[]);
 
@@ -77,7 +82,12 @@ const App = () => {
     socket.emit("typing",{roomId,UserName})
   }
 
-  console.log('Users:', users);
+
+  const handlelanguagechange = e=>{
+    const newlanguage = e.target.value 
+    setLanguage(newlanguage)
+    socket.emit("languagechange",{roomId,language:newlanguage});
+  }
 
 
   
@@ -119,7 +129,9 @@ return (
           ))}
         </ul>
     <p className='typing-indicator'>{typing}</p>
-    <select className='language-selector' value={language} onChange={(e)=>setLanguage(e.target.value)}>
+    <select className='language-selector' 
+    value={language}
+     onChange={handlelanguagechange}>
       <option value="javascript">javascript</option>
       <option value="python">python</option>
       <option value="java">java</option>

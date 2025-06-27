@@ -75,6 +75,10 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("userTyping",UserName)
   })
 
+  socket.on("languagechange",({roomId,language})=>{
+    io.to(roomId).emit("languageupdate",language)
+  })
+
   socket.on("disconnect", () => {
     if (currentRoom && currentUser) {
       if (rooms.has(currentRoom)) {
