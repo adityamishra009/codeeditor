@@ -14,7 +14,7 @@ const App = () => {
   const[roomId,setRoomId]=useState("");
   const[UserName,setUserName]=useState("");
   const[language,setLanguage]=useState("javascript");
-  const[code,setCode]=useState("");
+  const[code,setCode]=useState("//start code here");
   const[copySuccess,setCopysuccess]=useState("");
   const[users, setUsers] = useState([]);
   const[typing,settyping]=useState("");
@@ -67,6 +67,15 @@ const App = () => {
       setJoined(true)
     }
   }
+
+    const leaveRoom=()=>{
+      socket.emit("leaveRoom");
+      setJoined(false)
+      setRoomId("")
+      setUserName("")
+      setCode("//start code here")
+      setLanguage("javascript")
+    }
 
   const copyroomId = ()=> {
     navigator.clipboard.writeText(roomId)
@@ -122,7 +131,7 @@ return (
       <button onClick={copyroomId} className="copy-button">Copy Id</button>
       {copySuccess && <span className='copy-success'>{copySuccess}</span>}
     </div>
-    <h3>Users in Room:</h3>
+    <h3>Users in Room:{UserName}</h3>
     <ul>
           {users.map((user, index) => (
             <li key={index}>{(user || '').slice(0, 8)}...</li>
@@ -137,7 +146,7 @@ return (
       <option value="java">java</option>
       <option value="cpp">c++</option>
     </select>
-    <button className='leave-button'>Leave Room</button>
+    <button className='leave-button' onClick={leaveRoom}>Leave Room</button>
   </div>
   <div className='editor-wrapper'>
     <Editor  
