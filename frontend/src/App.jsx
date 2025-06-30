@@ -134,6 +134,7 @@ const App = () => {
     );
   }
 
+  
 return (
 <div className="editor-container">
   <div className="sidebar">

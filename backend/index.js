@@ -3,7 +3,7 @@
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
-import axios from 'axios';
+import axios from 'axios';           // npm i axios to use axios
 
 const app = express();
 const server = http.createServer(app);
@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
   socket.on("compilecode",async({code,roomId,language,version})=>{
     if(rooms.has(roomId)) {
       const room= rooms.get(roomId)
-      const response= await axios.post("https://emkc.org/api/v2/piston/execute",{
+      const response= await axios.post("https://emkc.org/api/v2/piston/execute",{   //api linked
         language,
         version,
         files:[
