@@ -18,6 +18,8 @@ const App = () => {
   const[copySuccess,setCopysuccess]=useState("");
   const[users, setUsers] = useState([]);
   const[typing,settyping]=useState("");
+  const[output,setoutput]=useState("");
+  const[version,setversion]=useState("*");
 
 
   useEffect(() => {
@@ -38,11 +40,16 @@ const App = () => {
       setLanguage(newlanguage);
     });
 
+    socket.on("codeResponse",(response)=>{
+      setoutput(response.run.output)
+    })
+
     return () => {
       socket.off("userJoined");
       socket.off("codeUpdate");
       socket.off("userTyping");
       socket.off("languageupdate");
+      socket.off("codeResponse");
     }
   },[]);
 
@@ -98,6 +105,10 @@ const App = () => {
     socket.emit("languagechange",{roomId,language:newlanguage});
   }
 
+  const runcode = ()=>{
+    socket.emit("compilecode",{ roomId,code,language,version});
+  }
+
 
   
   if(!joined){
@@ -150,7 +161,7 @@ return (
   </div>
   <div className='editor-wrapper'>
     <Editor  
-     height={"100%"}
+     height={"60%"}
      defaultLanguage={language} 
      language={language}
      value={code}
@@ -163,6 +174,8 @@ return (
       }
      }
     />
+    <button className='run-btn' onClick={runcode}>Execute</button>
+    <textarea className='output-console' value={output} readOnly placeholder='output will appear here'></textarea>
   </div>
 </div>
 );
