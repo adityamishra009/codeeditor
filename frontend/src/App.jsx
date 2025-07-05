@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import "./App.css";
 import io from 'socket.io-client';
 import Editor from '@monaco-editor/react';
+import { v4 as uuid} from 'uuid'
 
 
 // it is backend api 
@@ -105,8 +106,15 @@ const App = () => {
     socket.emit("languagechange",{roomId,language:newlanguage});
   }
 
+  const [userInput, setUserInput] = useState("");
+
   const runcode = ()=>{
-    socket.emit("compilecode",{ roomId,code,language,version});
+    socket.emit("compilecode",{ roomId,code,language,version, input: userInput});
+  }
+
+  const creatRoomId = () => {
+    const roomId = uuid();
+    setRoomId(roomId);
   }
 
 
@@ -122,6 +130,7 @@ const App = () => {
             value={roomId}
             onChange={(e)=>setRoomId(e.target.value)}
           />
+          <button onClick={creatRoomId} >Create Id</button>
           <input 
             type="text" 
             placeholder="Your Name"
@@ -175,6 +184,9 @@ return (
       }
      }
     />
+
+    <textarea className='input-console' value={userInput} onChange={(e) => setUserInput(e.target.value)} placeholder='Enter input here...' />
+
     <button className='run-btn' onClick={runcode}>Execute</button>
     <textarea className='output-console' value={output} readOnly placeholder='output will appear here'></textarea>
   </div>
