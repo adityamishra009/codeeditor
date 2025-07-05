@@ -33,8 +33,8 @@ io.on("connection", (socket) => {
     if (currentRoom) {
       socket.leave(currentRoom);
       if (rooms.has(currentRoom)) {
-        rooms.get(currentRoom).delete(currentUser);
-        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+        rooms.get(currentRoom).users.delete(currentUser);
+        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom).users));
       }
     }
 
@@ -44,25 +44,30 @@ io.on("connection", (socket) => {
     socket.join(roomId);
 
     if (!rooms.has(roomId)) {
-      rooms.set(roomId, new Set());
+      rooms.set(roomId, {users: new Set(), code: "// start code here"});
     }
 
-    rooms.get(roomId).add(UserName);
+    rooms.get(roomId).users.add(UserName);
 
-    io.to(roomId).emit("userJoined", Array.from(rooms.get(roomId)));
+    socket.emit("codeUpdate", rooms.get(roomId).code);
+
+    io.to(roomId).emit("userJoined", Array.from(rooms.get(roomId).users ));
   });
 
   socket.on("codeChange", ({ roomId, code }) => {
-    if (roomId) {
-      socket.to(roomId).emit("codeUpdate", code);
+    if(rooms.has(roomId)) {
+      rooms.get(roomId).code = code; 
     }
+    // if (roomId) {
+      socket.to(roomId).emit("codeUpdate", code);
+    //}
   });
 
   socket.on("leaveRoom", () => {
     if (currentRoom && currentUser) {
       if (rooms.has(currentRoom)) {
-        rooms.get(currentRoom).delete(currentUser);
-        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+        rooms.get(currentRoom).users.delete(currentUser);
+        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom).users));
       }
 
       socket.leave(currentRoom);
@@ -80,7 +85,7 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("languageupdate",language)
   })
 
-  socket.on("compilecode",async({code,roomId,language,version})=>{
+  socket.on("compilecode",async({code,roomId,language,version, input})=>{
     if(rooms.has(roomId)) {
       const room= rooms.get(roomId)
       const response= await axios.post("https://emkc.org/api/v2/piston/execute",{   //api linked
@@ -90,7 +95,9 @@ io.on("connection", (socket) => {
           {
             content:code
           }
-        ]
+        ],
+        // implementing run-time input compiler
+        stdin: input,
       })
       room.output = response.data.run.output;
       io.to(roomId).emit("codeResponse",response.data);
@@ -100,8 +107,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     if (currentRoom && currentUser) {
       if (rooms.has(currentRoom)) {
-        rooms.get(currentRoom).delete(currentUser);
-        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+        rooms.get(currentRoom).users.delete(currentUser);
+        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom).users));
       }
     }
     console.log("User disconnected:", socket.id);
