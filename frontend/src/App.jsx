@@ -8,9 +8,11 @@ import Editor from '@monaco-editor/react';
 import { v4 as uuid} from 'uuid'
 
 
+const backendURL = "https://codeeditor-5m7h.onrender.com/" || "http://localhost:3000/";
+
 // it is backend api 
 // add your backend api here 
-const socket = io("http://localhost:3000/");
+const socket = io(backendURL);
 
 const App = () => {
 
